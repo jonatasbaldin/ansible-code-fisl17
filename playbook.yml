@@ -1,0 +1,27 @@
+---
+
+- hosts: webserver01.fisl17
+  become: true
+  vars:
+    apache_package: httpd
+    
+    users:
+      - bob
+      - alice
+
+  tasks:
+  - name: Install htop
+    yum: name=htop state=present
+    when: ansible_distribution == "CentOS"
+
+  - name: Add users
+    user: name={{ item }} state=present
+    with_items: "{{ users }}"
+
+  - name: Install apache
+    yum: name={{ apache_package }} state=present
+    notify: Restart apache
+
+  handlers:
+  - name: Restart apache
+    service: name=httpd state=restarted

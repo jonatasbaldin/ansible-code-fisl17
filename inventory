@@ -1,0 +1,7 @@
+[webservers]
+webserver01.fisl17 ansible_host=192.168.10.10 ansible_ssh_private_key_file=.vagrant/machines/webserver01/virtualbox/private_key ansible_user=vagrant
+webserver02.fisl17 ansible_host=192.168.10.11 ansible_ssh_private_key_file=.vagrant/machines/webserver02/virtualbox/private_key ansible_user=vagrant
+webserver03.fisl17 ansible_host=192.168.10.12 ansible_ssh_private_key_file=.vagrant/machines/webserver03/virtualbox/private_key ansible_user=vagrant
+
+[loadbalancer]
+load.fisl17 ansible_host=192.168.10.100 ansible_ssh_private_key_file=.vagrant/machines/load/virtualbox/private_key ansible_user=vagrant

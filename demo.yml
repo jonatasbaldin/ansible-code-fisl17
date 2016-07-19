@@ -1,0 +1,51 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+
+    - name: Create nginx repo
+      template: src=templates/nginx.repo.j2 dest=/etc/yum.repos.d/nginx.repo owner=root group=root
+
+    - name: Install NGINX
+      yum: name=nginx state=present
+
+- hosts: webservers
+  become: true
+
+  vars:
+    vhost_dir: "/var/www/{{ inventory_hostname }}"
+
+  tasks:
+    - name: Create vhost dir
+      file: path={{ vhost_dir }} state=directory owner=nginx group=nginx
+
+    - name: Copy NGINX template
+      template: src=templates/nginx_vhost.conf.j2 dest=/etc/nginx/conf.d/vhost.conf owner=nginx group=nginx
+      notify: Restart nginx
+
+    - name: Extract webserver files
+      unarchive: src=files/fisl17.tar.gz dest={{ vhost_dir }} owner=nginx group=nginx
+
+    - name: Copy vhost index file
+      template: src=templates/index.html.j2 dest={{ vhost_dir }}/index.html owner=nginx group=nginx
+
+    - name: Remove default site configuration
+      file: path=/etc/nginx/conf.d/default.conf state=absent
+
+  handlers:
+    - name: Restart nginx
+      service: name=nginx state=restarted
+
+
+- hosts: loadbalancer
+  become: true
+
+  tasks: 
+    - name: Copy NGINX configuration
+      template: src=templates/nginx_load.conf.j2 dest=/etc/nginx/nginx.conf owner=nginx group=nginx
+      notify: Restart nginx
+
+  handlers:
+    - name: Restart nginx
+      service: name=nginx state=restarted
